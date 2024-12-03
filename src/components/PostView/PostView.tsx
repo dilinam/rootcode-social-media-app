@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Modal,
   TextField,
   Typography,
@@ -33,9 +34,11 @@ export const PostView = ({
   setPost: any;
 }) => {
   const [comment, setComment] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSave = async () => {
     try {
+      setIsLoading(true);
       await axios.post("http://localhost:8080/api/comments", {
         commentText: comment,
         post: { id: post?.id },
@@ -48,6 +51,7 @@ export const PostView = ({
     } catch (e) {
       alert(e);
     }
+    setIsLoading(false);
   };
 
   const handleClose = () => {
@@ -66,18 +70,24 @@ export const PostView = ({
           {post?.title}
         </Typography>
         <Post post={post} />
-        {post?.comments.map((comment) => (
-          <Card
-            key={comment.id}
-            sx={{ minWidth: 275, my: 2, backgroundColor: colors.grey[100] }}
-          >
-            <CardContent>
-              <Typography gutterBottom sx={{ fontSize: 12 }}>
-                {comment.commentText}
-              </Typography>
-            </CardContent>
-          </Card>
-        ))}
+        {isLoading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          post?.comments.map((comment) => (
+            <Card
+              key={comment.id}
+              sx={{ minWidth: 275, my: 2, backgroundColor: colors.grey[100] }}
+            >
+              <CardContent>
+                <Typography gutterBottom sx={{ fontSize: 12 }}>
+                  {comment.commentText}
+                </Typography>
+              </CardContent>
+            </Card>
+          ))
+        )}
         <TextField
           sx={{ mt: 3 }}
           label="Comment"
@@ -95,7 +105,7 @@ export const PostView = ({
           variant="contained"
           color="success"
           onClick={handleSave}
-          disabled={comment.trim() === ""}
+          disabled={comment.trim() === "" || isLoading}
         >
           Comment
         </Button>

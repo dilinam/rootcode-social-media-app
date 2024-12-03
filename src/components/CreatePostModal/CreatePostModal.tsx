@@ -1,4 +1,11 @@
-import { Box, Button, Modal, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Modal,
+  TextField,
+  Typography,
+} from "@mui/material";
 import axios from "axios";
 import { useState } from "react";
 
@@ -20,6 +27,7 @@ export const CreatePostModal = ({ getposts }: { getposts: any }) => {
   const [description, setDescription] = useState("");
   const [titleError, setTitleError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleClose = () => {
     setCreatePostModal(false);
@@ -40,6 +48,8 @@ export const CreatePostModal = ({ getposts }: { getposts: any }) => {
 
       if (error) return;
 
+      setIsLoading(true);
+
       await axios.post("http://localhost:8080/api/posts", {
         title,
         description,
@@ -51,6 +61,8 @@ export const CreatePostModal = ({ getposts }: { getposts: any }) => {
     } catch (e) {
       alert(e);
     }
+
+    setIsLoading(false);
   };
 
   return (
@@ -87,6 +99,7 @@ export const CreatePostModal = ({ getposts }: { getposts: any }) => {
             fullWidth
             error={titleError.trim() !== ""}
             helperText={titleError}
+            disabled={isLoading}
           />
           <TextField
             sx={{ mt: 3 }}
@@ -101,6 +114,7 @@ export const CreatePostModal = ({ getposts }: { getposts: any }) => {
             fullWidth
             error={descriptionError.trim() !== ""}
             helperText={descriptionError}
+            disabled={isLoading}
           />
           <Button
             sx={{ mt: 2 }}
@@ -108,8 +122,9 @@ export const CreatePostModal = ({ getposts }: { getposts: any }) => {
             variant="contained"
             color="success"
             onClick={handleSave}
+            disabled={isLoading}
           >
-            Save
+            {isLoading ? <CircularProgress size={25} /> : "Save"}
           </Button>
         </Box>
       </Modal>
